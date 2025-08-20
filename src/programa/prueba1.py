@@ -56,15 +56,6 @@ def resultados_busqueda(datos_vacante, texto_pdf):
         else:
             print(f"{clave.capitalize()} NO encontrado: {valor}")
 
-def puntaje(datos_vacante): #sistema de puntaje#
-    print("\nCompatibilidad de la vacante con el postulante:\n")
-    for clave, valor in datos_vacante.items():
-        if valor.lower() in texto_pdf:
-            #aquí metemos el sistema de puntaje en caso de q el dato necesario si esté en el cv#
-        else:
-            #aquí metemos el sistema de puntaje en caso de q el dato necesario no esté en el cv#
-
-
 info = vacante()
 ruta = obter_ruta()
 texto_pdf = leer_archivo(ruta)
