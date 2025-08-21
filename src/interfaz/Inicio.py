@@ -24,18 +24,14 @@ def pantalla_principal(window):
     resized_img = img.resize((250, 200))
     img = ImageTk.PhotoImage(resized_img)
 
-    window.logobt = Image.PhotoImage(img)
-
-    lienzo = Canvas(window, width=200, height=200)
-    lienzo.create_image(0, 0, anchor=NW, image=window.logobt)
-    lienzo.grid(column=0, row=0)
-
     titulo1=Label(text="Selecciona la acción a realizar", font=("Montserrat", 30, "bold"), fg="#3F0850", background="#D4ADFC")
     titulo1.grid(column=1, row=0, columnspan=1, pady=(20, 20))
 
-    boton_ats = Button(window, text="Simulador de ATS", font=("Montserrat", 20, "bold"), fg="#5C469C", background="#C197EB",
-                          command=lambda: pantalla_Datos(window, pantalla_principal))
+    boton_ats = Button(window, text="Simulador de ATS", font=("Montserrat", 20, "bold"), fg="#5C469C", background="#C197EB", command=lambda: pantalla_Datos(window))
     boton_ats.grid(column=1, row=2, padx=30, pady=15)
+
+def siguiente (window):
+    pantalla_Datos(window)  
 
 window = Tk()
 pantalla_principal(window)

@@ -1,9 +1,8 @@
 import os
 from tkinter import *
-from Inicio import pantalla_principal
 from PIL import Image, ImageTk
 
-def pantalla_Datos(window, pantalla_principal):
+def pantalla_Datos(window):
     for widget in window.winfo_children():
         widget.destroy()
     
@@ -13,17 +12,16 @@ def pantalla_Datos(window, pantalla_principal):
     window.minsize(width=800, height=800)
     window.config(padx=20, pady=20)
 
-    mg = Image.open("Recursos/logobt.png")
+    img = Image.open("Recursos/logobt.png")
     resized_img = img.resize((250, 200))
     img = ImageTk.PhotoImage(resized_img)
-
-    window.logobt = Image.PhotoImage(img)
+    window.logobt = img
 
     lienzo = Canvas(window, width=200, height=200)
     lienzo.create_image(0, 0, anchor=NW, image=window.logobt)
     lienzo.grid(column=0, row=0)
 
-    titulo1 = Label(window, text="ATS", font=("Montserrat", 80, "bold"), fg="#3F0850,")
+    titulo1 = Label(window, text="ATS", font=("Montserrat", 80, "bold"), fg="#3F0850")
     titulo1.grid(column=1, row=0, pady=20, sticky="w")
 
     titulo2 = Label(window, text="Rellene los siguientes datos", font=("Montserrat", 20, "bold"), fg="#3F0850",  background="#D4ADFC")
@@ -88,5 +86,5 @@ def pantalla_Datos(window, pantalla_principal):
     """regreso = Button(window, image=BotonRegreso, borderwidth=0, command=lambda: pantalla_principal(window))
     regreso.grid(column=0, row=7, pady=50)
     """
-    
+
     window.mainloop()
