@@ -84,16 +84,60 @@ def resultados_busqueda(datos_vacante, texto_pdf):
     "si_aparecen": SiApareceList,
     "conteos": conteo
 }
+def palabras_organizacional():
+    palab_org =[
+        "pruebas", "comunicacion","liderazgo", "trabajo en equipo", "planeacion" 
+    ]
+    return palab_org
 
-"""def puntaje(datos_vacante): #sistema de puntaje#
-    print("\nCompatibilidad de la vacante con el postulante:\n")
-    for clave, valor in datos_vacante.items():
-        if valor.lower() in texto_pdf:
-            #aquí metemos el sistema de puntaje en caso de q el dato necesario si esté en el cv#
-        else:
-            #aquí metemos el sistema de puntaje en caso de q el dato necesario no esté en el cv#
-            /home/tomas/Descargas/CV_Montserrat_Guzmán.pdf
-"""
+def palabras_clinica():
+    palab_clinic = [
+        "reportes clinicos", "diagnostico", "clinica"
+    ]
+    return palab_clinic
+
+def puntaje_normal(datos_vacante, resultados):
+    total_criterios = len(datos_vacante)
+    criterios_cumplidos = len(resultados["si_aparecen"])
+    puntaje = (criterios_cumplidos / total_criterios) * 100  # Puntaje en porcentaje
+    print(f"\nPuntaje de compatibilidad: {puntaje:.2f}%")
+    return puntaje
+
+def puntaje_organizacional(datos_vacante, resultados):
+    total_criterios = len(datos_vacante)+5
+    criterios_cumplidos = len(resultados["si_aparecen"])
+    for palabra in palabras_organizacional():
+        if palabra in resultados["si_aparecen"]:
+            criterios_cumplidos += 1
+    puntaje = (criterios_cumplidos / total_criterios) * 100  # Puntaje en porcentaje
+    print(f"\nPuntaje de compatibilidad: {puntaje:.2f}%")
+    return puntaje
+
+def puntaje_clinica(datos_vacante, resultados):
+    total_criterios = len(datos_vacante)+3
+    criterios_cumplidos = len(resultados["si_aparecen"])
+    clinica_palabras = [
+        "empatia", "resiliencia", "ética"
+    ]
+    for palabra in clinica_palabras:
+        if palabra in resultados["si_aparecen"]:
+            criterios_cumplidos += 1
+    puntaje = (criterios_cumplidos / total_criterios) * 100  # Puntaje en porcentaje
+    print(f"\nPuntaje de compatibilidad: {puntaje:.2f}%")
+    return puntaje
+
+def puntaje_educativa(datos_vacante, resultados):
+    total_criterios = len(datos_vacante)+4
+    criterios_cumplidos = len(resultados["si_aparecen"])
+    educativa_palabras = [
+        "comunicacion","niños", "jovenes", "adultos","empatia",
+    ]
+    for palabra in educativa_palabras:
+        if palabra in resultados["si_aparecen"]:
+            criterios_cumplidos += 1
+    puntaje = (criterios_cumplidos / total_criterios) * 100  # Puntaje en porcentaje
+    print(f"\nPuntaje de compatibilidad: {puntaje:.2f}%")
+    return puntaje
 
 info = vacante()
 ruta = obter_ruta()
@@ -101,3 +145,4 @@ texto_pdf = leer_archivo(ruta)
 resultados =  resultados_busqueda(info, texto_pdf)
 print("Palabras que SI aparecen ",resultados["si_aparecen"])
 print("Palabras que NO aparecen ",resultados["no_aparecen"])
+
