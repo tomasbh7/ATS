@@ -14,6 +14,8 @@ ctk.set_appearance_mode("Dark")
 ctk.set_default_color_theme("blue")
 
 def normalizar(texto):
+    if texto is None:
+        return ""
     texto_minuscula = texto.lower()
     texto_normalizado = unicodedata.normalize('NFD', texto_minuscula)
     texto_sin_tildes = ''.join(
@@ -94,6 +96,7 @@ def leer_archivo_pdf(inputFile):
                 texto += page.extract_text() + "\n"
         return texto.lower()
     except Exception as e:
+        print(f"Error leyendo PDF: {e}")
         return ""
 
 def comparar_niveles_idioma(nivel_vacante, nivel_cv):
@@ -175,6 +178,26 @@ class ATSApp(ctk.CTk):
         self.crear_tab_evaluacion()
         self.crear_tab_resultados()
     
+    def validar_solo_numeros(self, text):
+        """Valida que solo se ingresen números"""
+        if text == "":
+            return True
+        try:
+            int(text)
+            return True
+        except ValueError:
+            return False
+    
+    def actualizar_campo_semestre(self, choice=None):
+        """Muestra u oculta el campo de semestre según la selección"""
+        if self.estudios_var.get() == "licenciatura":
+            self.entry_semestre.pack(side="left", padx=5)
+            self.label_semestre.pack(side="left", padx=5)
+        else:
+            self.entry_semestre.pack_forget()
+            self.label_semestre.pack_forget()
+            self.entry_semestre.delete(0, tk.END)
+    
     def crear_tab_vacantes(self):
         main_frame = ctk.CTkFrame(self.tab_vacantes)
         main_frame.pack(fill="both", expand=True, padx=10, pady=10)
@@ -187,24 +210,24 @@ class ATSApp(ctk.CTk):
         form_frame.pack(fill="both", expand=True, padx=20, pady=10)
         
         campos = [
-            ("Nombre de la vacante:", "entry_nombre"),
-            ("Habilidades:", "entry_habilidades"),
-            ("Competencias:", "entry_competencias"),
-            ("Palabras clave:", "entry_palabras_clave"),
-            ("Experiencia:", "entry_experiencia"),
-            ("Herramientas:", "entry_herramientas"),
-            ("Extras:", "entry_extras")
+            ("Nombre de la vacante:", "entry_nombre", "Ej: Desarrollador Python Junior"),
+            ("Habilidades:", "entry_habilidades", "Ej: python, django, bases de datos"),
+            ("Competencias:", "entry_competencias", "Ej: trabajo en equipo, resolucion problemas"),
+            ("Palabras clave:", "entry_palabras_clave", "Ej: backend, api, programacion"),
+            ("Experiencia:", "entry_experiencia", "Ej: 1 año desarrollo web"),
+            ("Herramientas:", "entry_herramientas", "Ej: git, vscode, postman"),
+            ("Extras:", "entry_extras", "Ej: disponibilidad tiempo completo")
         ]
         
         self.campos_vacante = {}
-        for texto, key in campos:
+        for texto, key, placeholder in campos:
             frame = ctk.CTkFrame(form_frame)
             frame.pack(fill="x", padx=10, pady=5)
             
             label = ctk.CTkLabel(frame, text=texto, width=150)
             label.pack(side="left", padx=5)
             
-            entry = ctk.CTkEntry(frame, placeholder_text=f"Ingrese {texto.lower()}")
+            entry = ctk.CTkEntry(frame, placeholder_text=placeholder)
             entry.pack(side="left", fill="x", expand=True, padx=5)
             
             self.campos_vacante[key] = entry
@@ -217,11 +240,19 @@ class ATSApp(ctk.CTk):
         self.estudios_var = ctk.StringVar(value="licenciatura")
         estudios_opciones = ["licenciatura", "maestria", "doctorado"]
         self.combo_estudios = ctk.CTkComboBox(estudios_frame, values=estudios_opciones,
-                                            variable=self.estudios_var)
+                                            variable=self.estudios_var,
+                                            command=self.actualizar_campo_semestre)
         self.combo_estudios.pack(side="left", padx=5)
         
-        self.entry_semestre = ctk.CTkEntry(estudios_frame, placeholder_text="Ej: 5to semestre")
-        self.entry_semestre.pack(side="left", fill="x", expand=True, padx=5)
+        # Registrar validación para solo números
+        vcmd = (self.register(self.validar_solo_numeros), '%P')
+        self.entry_semestre = ctk.CTkEntry(estudios_frame, 
+                                          placeholder_text="Ej: 5 (solo número)",
+                                          validate="key", 
+                                          validatecommand=vcmd,
+                                          width=80)
+        
+        self.label_semestre = ctk.CTkLabel(estudios_frame, text="semestre")
         
         idioma_frame = ctk.CTkFrame(form_frame)
         idioma_frame.pack(fill="x", padx=10, pady=5)
@@ -406,7 +437,16 @@ class ATSApp(ctk.CTk):
         
         estudios = self.estudios_var.get()
         if estudios == "licenciatura" and self.entry_semestre.get().strip():
-            estudios = normalizar(self.entry_semestre.get())
+            semestre_num = self.entry_semestre.get().strip()
+            if semestre_num:
+                if semestre_num == "1":
+                    estudios = "1er semestre"
+                elif semestre_num == "2":
+                    estudios = "2do semestre" 
+                elif semestre_num == "3":
+                    estudios = "3er semestre"
+                else:
+                    estudios = f"{semestre_num}to semestre"
         
         datos_vacante = {
             "Habilidades": normalizar(self.campos_vacante["entry_habilidades"].get()),
@@ -478,7 +518,6 @@ class ATSApp(ctk.CTk):
             return
         
         dialog = ctk.CTkInputDialog(text="Seleccione la vacante:", title="Asociar CV")
-        # Simulamos un combobox con input dialog
         vacante_seleccionada = dialog.get_input()
         
         if vacante_seleccionada and vacante_seleccionada in vacantes:
@@ -569,7 +608,23 @@ class ATSApp(ctk.CTk):
         
         for clave, valor in datos_vacante.items():
             if valor.strip():
-                if clave == "Nivel del idioma" and datos_vacante["Idioma"].strip():
+                if clave in ["Habilidades", "Competencias", "Palabras_clave", "Herramientas"]:
+                    elementos = [elem.strip() for elem in valor.split(',') if elem.strip()]
+                    elementos_encontrados = []
+                    elementos_no_encontrados = []
+                    
+                    for elemento in elementos:
+                        if elemento in texto:
+                            elementos_encontrados.append(elemento)
+                        else:
+                            elementos_no_encontrados.append(elemento)
+                    
+                    if elementos_encontrados:
+                        SiApareceList.append(f"{clave}: {', '.join(elementos_encontrados)}")
+                    if elementos_no_encontrados:
+                        NoApareceList.append(f"{clave}: {', '.join(elementos_no_encontrados)}")
+                
+                elif clave == "Nivel del idioma" and datos_vacante["Idioma"].strip():
                     idioma_vacante = datos_vacante["Idioma"]
                     if idioma_vacante in texto:
                         niveles_posibles = ["principiante", "intermedio", "avanzado"]
@@ -611,12 +666,26 @@ class ATSApp(ctk.CTk):
                     else:
                         NoApareceList.append(f"{clave}: {valor}")
         
-        criterios_no_vacios = sum(1 for valor in datos_vacante.values() if valor.strip())
-        if criterios_no_vacios == 0:
+        total_elementos = 0
+        elementos_encontrados = 0
+        
+        for clave, valor in datos_vacante.items():
+            if valor.strip():
+                if clave in ["Habilidades", "Competencias", "Palabras_clave", "Herramientas"]:
+                    elementos = [elem.strip() for elem in valor.split(',') if elem.strip()]
+                    total_elementos += len(elementos)
+                    for elemento in elementos:
+                        if elemento in texto:
+                            elementos_encontrados += 1
+                else:
+                    total_elementos += 1
+                    if any(f"{clave}: {valor}" in criterio for criterio in SiApareceList):
+                        elementos_encontrados += 1
+        
+        if total_elementos == 0:
             puntaje = 0
         else:
-            criterios_cumplidos = len(SiApareceList)
-            puntaje = (criterios_cumplidos / criterios_no_vacios) * 100
+            puntaje = (elementos_encontrados / total_elementos) * 100
         
         return {
             "no_aparecen": NoApareceList,
@@ -672,6 +741,7 @@ class ATSApp(ctk.CTk):
         self.entry_semestre.delete(0, tk.END)
         self.estudios_var.set("licenciatura")
         self.nivel_idioma_var.set("intermedio")
+        self.actualizar_campo_semestre()
 
 if __name__ == "__main__":
     app = ATSApp()
