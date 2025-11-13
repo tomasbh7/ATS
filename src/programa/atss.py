@@ -210,13 +210,13 @@ class ATSApp(ctk.CTk):
         form_frame.pack(fill="both", expand=True, padx=20, pady=10)
         
         campos = [
-            ("Nombre de la vacante:", "entry_nombre", "Ej: Desarrollador Python Junior"),
-            ("Habilidades:", "entry_habilidades", "Ej: python, django, bases de datos"),
-            ("Competencias:", "entry_competencias", "Ej: trabajo en equipo, resolucion problemas"),
-            ("Palabras clave:", "entry_palabras_clave", "Ej: backend, api, programacion"),
-            ("Experiencia:", "entry_experiencia", "Ej: 1 año desarrollo web"),
-            ("Herramientas:", "entry_herramientas", "Ej: git, vscode, postman"),
-            ("Extras:", "entry_extras", "Ej: disponibilidad tiempo completo")
+            ("Nombre de la vacante:", "entry_nombre", "Ej: Reclutador"),
+            ("Habilidades:", "entry_habilidades", "Ej: capacitacion, planeacion, entrevista"),
+            ("Competencias:", "entry_competencias", "Ej: trabajo en equipo, adaptabilidad"),
+            ("Palabras clave:", "entry_palabras_clave", "capacitacion, trabajo en equipo"),
+            ("Experiencia:", "entry_experiencia", "Ej: entrevista, reclutamiento"),
+            ("Herramientas:", "entry_herramientas", "Ej: Office, outlook, whatsapp"),
+            ("Extras:", "entry_extras", "Ej: presencial")
         ]
         
         self.campos_vacante = {}
